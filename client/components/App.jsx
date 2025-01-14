@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import EventLog from "./EventLog";
 import SessionControls from "./SessionControls";
 import ToolPanel from "./ToolPanel";
-import Transcribe from "./Transcribe";
+import { TranscriptionPanel } from "./TranscriptionPanel";
 import logo from "/assets/openai-logomark.svg";
-
 export default function App() {
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [events, setEvents] = useState([]);
@@ -35,13 +34,13 @@ export default function App() {
     // Set up data channel for sending and receiving events
     const dc = pc.createDataChannel("oai-events");
     setDataChannel(dc);
-    // dc.onopen = () => {
-    //   dc.send(JSON.stringify({
-    //     type: "session.update",
-    //       input_audio_transcription: { model: "whisper-1" },
-    //     }),
-    //   );
-    // };
+    dc.onopen = () => {
+      dc.send(JSON.stringify({
+        type: "session.update",
+          input_audio_transcription: { model: "whisper-1" },
+        }),
+      );
+    };
 
     // Start the session using the Session Description Protocol (SDP)
     const offer = await pc.createOffer();
@@ -153,7 +152,7 @@ export default function App() {
             <EventLog events={events} />
           </section>
           <section className="absolute h-16 left-0 right-0 bottom-32 px-4 bg-gray-50 border-t border-gray-200">
-            <Transcribe events={events} />
+            <TranscriptionPanel events={events} />
           </section>
           <section className="absolute h-32 left-0 right-0 bottom-0 p-4">
             <SessionControls
